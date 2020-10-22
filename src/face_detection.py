@@ -8,7 +8,10 @@ class ModelFaceDetection(Model):
 
     def predict(self, image):
         ret = super().predict(image)
-        return [x for x in ret[0][0] if x[2] > self.threshold]
+        for x in ret[0][0]:
+            if x[2] > self.threshold:
+                return [x]
+
 
     def get_coordinates(self, outputs, width, height):
         bbox = []

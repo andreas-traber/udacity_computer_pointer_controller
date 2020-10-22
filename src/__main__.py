@@ -60,6 +60,7 @@ def main():
         if not flag:
             break
         face_pred = face_det.predict(frame)
+        print(face_pred)
         #out_frame = face_det.draw_bbox(frame, face_pred, width, height)
         #cv2.imshow('test', out_frame)
         #key = cv2.waitKey()
@@ -67,9 +68,21 @@ def main():
         #cv2.imshow('Head', img_head)
         #key = cv2.waitKey()
         landmark_pred = landmarks.predict(img_head)
+        img_left_eye, img_right_eye = landmarks.preprocess_output(img_head, landmark_pred,
+                                                                  img_head.shape[1], img_head.shape[0])
+        #cv2.imshow('left eye', img_left_eye)
+        #key = cv2.waitKey()
+        #cv2.imshow('right eye', img_right_eye)
+        #key = cv2.waitKey()
         #out_frame = landmarks.draw_bbox(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
         #cv2.imshow('landmarks', out_frame)
         #key = cv2.waitKey()
+        head_pose_pred = head_pose.predict(img_head)
+        print(head_pose_pred)
+        print(head_pose.output_blobs)
+        print(head_pose.net.outputs)
+        print(face_det.net.outputs)
+        print(landmarks.net.outputs)
 
 
 if __name__ == '__main__':
