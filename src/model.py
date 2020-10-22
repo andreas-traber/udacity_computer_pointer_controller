@@ -3,6 +3,8 @@ This is a sample class for a model. You may choose to use it as-is or make any c
 This has been provided just to give you an idea of how to structure your model class.
 """
 import os
+from abc import abstractmethod
+
 from openvino.inference_engine import IECore
 import cv2
 import copy
@@ -59,30 +61,30 @@ class Model:
         This method is meant for running predictions on the input image.
         """
         preprocessed_image = self.preprocess_input(image)
-        ret = self.exec_network.infer(inputs={self.input_name: preprocessed_image})[self.output_blobs]
-        return [x for x in ret[0][0] if x[2] > self.threshold]
+        return self.exec_network.infer(inputs={self.input_name: preprocessed_image})[self.output_blobs]
 
     def preprocess_output(self, image, outputs, width, height):
         """
         Before feeding the output of this model to the next model,
         you might have to preprocess the output. This function is where you can do that.
         """
-        bbox = []
         ret_image = copy.copy(image)
-        for res in outputs:
-            bbox.append([int(res[3] * width), int(res[4] * height), int(res[5] * width), int(res[6] * height)])
+        bbox = self.get_coordinates(outputs, width, height)
         for rect in bbox:
-            return ret_image[rect[1]:rect[3],rect[0]:rect[2]]
+            return ret_image[rect[1]:rect[3], rect[0]:rect[2]]
+
+    @abstractmethod
+    def get_coordinates(self, outputs, width, height):
+        None
 
     def draw_bbox(self, image, outputs, width, height):
         """
         Before feeding the output of this model to the next model,
         you might have to preprocess the output. This function is where you can do that.
         """
-        bbox = []
         ret_image = copy.copy(image)
-        for res in outputs:
-            bbox.append([int(res[3] * width), int(res[4] * height), int(res[5] * width), int(res[6] * height)])
+        bbox = self.get_coordinates(outputs, width, height)
+        print(bbox)
         for rect in bbox:
             cv2.rectangle(ret_image, (rect[0], rect[1]), (rect[2], rect[3]), [0, 0, 255], 6)
         return ret_image

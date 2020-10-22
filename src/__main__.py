@@ -22,14 +22,12 @@ def build_argparser():
                                 '/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001.xml')
     parser.add_argument("--model_gaze_estimation", "-mge", required=False, type=str,
                         help="Path to an xml file with a trained Gaze Estimation model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller'
-                                '/models/intel/face-detection-adas-0001/FP32/face-detection-adas-0001'
-                                '.xml')
+                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/models/intel'
+                                '/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002.xml')
     parser.add_argument("--model_landmarks", "-ml", required=False, type=str,
                         help="Path to an xml file with a trained Landmark model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller'
-                                '/models/intel/face-detection-adas-0001/FP32/face-detection-adas-0001'
-                                '.xml')
+                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/models/intel'
+                                '/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009.xml')
     parser.add_argument("--input", "-i", required=False, type=str,
                         help="Path to image or video file",
                         default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/bin/vlcsnap'
@@ -62,17 +60,16 @@ def main():
         if not flag:
             break
         face_pred = face_det.predict(frame)
-        out_frame = face_det.draw_bbox(frame, face_pred, width, height)
+        #out_frame = face_det.draw_bbox(frame, face_pred, width, height)
         #cv2.imshow('test', out_frame)
         #key = cv2.waitKey()
         img_head = face_det.preprocess_output(frame, face_pred, width, height)
         #cv2.imshow('Head', img_head)
         #key = cv2.waitKey()
         landmark_pred = landmarks.predict(img_head)
-        print(landmark_pred)
-        out_frame = landmarks.draw_bbox(img_head, landmark_pred, img_head.shape[0], img_head.shape[1])
-        cv2.imshow('landmarks', out_frame)
-        key = cv2.waitKey()
+        #out_frame = landmarks.draw_bbox(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
+        #cv2.imshow('landmarks', out_frame)
+        #key = cv2.waitKey()
 
 
 if __name__ == '__main__':
