@@ -42,6 +42,8 @@ def build_argparser():
                              "CPU, GPU, FPGA or MYRIAD is acceptable. Sample "
                              "will look for a suitable plugin for device "
                              "specified (CPU by default)")
+    parser.add_argument("--show_image_steps", "-s", dest='show_image_steps', default=False, action='store_true',
+                        help="Show an image of every step with cv2.show()")
     return parser
 
 
@@ -60,29 +62,28 @@ def main():
         if not flag:
             break
         face_pred = face_det.predict(frame)
-        print(face_pred)
-        #out_frame = face_det.draw_bbox(frame, face_pred, width, height)
-        #cv2.imshow('test', out_frame)
-        #key = cv2.waitKey()
+        if args.show_image_steps:
+            out_frame = face_det.draw_prediction(frame, face_pred, width, height)
+            cv2.imshow('Head Boundaries', out_frame)
+            key = cv2.waitKey()
         img_head = face_det.preprocess_output(frame, face_pred, width, height)
-        #cv2.imshow('Head', img_head)
-        #key = cv2.waitKey()
+        if args.show_image_steps:
+            cv2.imshow('Head', img_head)
+            key = cv2.waitKey()
         landmark_pred = landmarks.predict(img_head)
-        img_left_eye, img_right_eye = landmarks.preprocess_output(img_head, landmark_pred,
+        left_eye_image, right_eye_image = landmarks.preprocess_output(img_head, landmark_pred,
                                                                   img_head.shape[1], img_head.shape[0])
-        #cv2.imshow('left eye', img_left_eye)
-        #key = cv2.waitKey()
-        #cv2.imshow('right eye', img_right_eye)
-        #key = cv2.waitKey()
-        #out_frame = landmarks.draw_bbox(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
-        #cv2.imshow('landmarks', out_frame)
-        #key = cv2.waitKey()
-        head_pose_pred = head_pose.predict(img_head)
-        print(head_pose_pred)
-        print(head_pose.output_blobs)
-        print(head_pose.net.outputs)
-        print(face_det.net.outputs)
-        print(landmarks.net.outputs)
+        if args.show_image_steps:
+            out_frame = landmarks.draw_prediction(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
+            cv2.imshow('Landmarks Boundaries', out_frame)
+            key = cv2.waitKey()
+            cv2.imshow('left eye', left_eye_image)
+            key = cv2.waitKey()
+            cv2.imshow('right eye', right_eye_image)
+            key = cv2.waitKey()
+        head_pose_angles = head_pose.predict(img_head)
+        gaze = gaze_est.predict(left_eye_image, right_eye_image, head_pose_angles)
+        print(gaze)
 
 
 if __name__ == '__main__':

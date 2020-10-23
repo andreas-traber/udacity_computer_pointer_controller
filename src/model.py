@@ -77,10 +77,9 @@ class Model:
     def get_coordinates(self, outputs, width, height):
         None
 
-    def draw_bbox(self, image, outputs, width, height):
+    def draw_prediction(self, image, outputs, width, height):
         """
-        Before feeding the output of this model to the next model,
-        you might have to preprocess the output. This function is where you can do that.
+        Draws the result of the prediction on the original image
         """
         ret_image = copy.copy(image)
         bbox = self.get_coordinates(outputs, width, height)

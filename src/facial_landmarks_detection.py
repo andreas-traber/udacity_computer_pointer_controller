@@ -6,6 +6,7 @@ class ModelFacialLandmarksDetection(Model):
     Class for the Facial Landmarks Detection Model.
     """
 
+
     def get_coordinates(self, outputs, width, height):
         bbox = []
         out_flat = outputs.flatten()
