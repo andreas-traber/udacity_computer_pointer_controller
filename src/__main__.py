@@ -83,6 +83,12 @@ def main():
             key = cv2.waitKey()
         head_pose_angles = head_pose.predict(img_head)
         gaze = gaze_est.predict(left_eye_image, right_eye_image, head_pose_angles)
+        if args.show_image_steps:
+            out_frame = gaze_est.draw_prediction(img_head, gaze, img_head.shape[1], img_head.shape[0])
+            #out_frame = gaze_est.draw_prediction(frame, gaze, width, height)
+            cv2.imshow('Gaze', out_frame)
+            key = cv2.waitKey()
+        print(gaze)
         print(gaze)
 
 
