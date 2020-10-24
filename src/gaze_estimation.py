@@ -39,3 +39,10 @@ class ModelGazeEstimation(Model):
         pt1, pt2 = self.get_coordinates(outputs, width, height)
         cv2.arrowedLine( ret_image, pt1, pt2, [0, 0, 255], 6)
         return ret_image
+
+    def preprocess_output(self, outputs):
+        """
+        Before feeding the output of this model to the next model,
+        you might have to preprocess the output. This function is where you can do that.
+        """
+        return outputs['gaze_vector'].flatten()
