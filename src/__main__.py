@@ -4,7 +4,7 @@ from src.facial_landmarks_detection import ModelFacialLandmarksDetection
 from src.gaze_estimation import ModelGazeEstimation
 from src.mouse_controller import MouseController
 
-
+import logging as log
 import cv2
 
 from argparse import ArgumentParser
@@ -33,7 +33,7 @@ def build_argparser():
                         help="Path to image or video file",
                         default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/bin/vlcsnap'
                                 '-2020-10-20-12h42m10s763.png')
-    parser.add_argument("--extensions", "-l", required=False, type=str,
+    parser.add_argument("--extensions", "-e", required=False, type=str,
                         default=None,
                         help="MKLDNN (CPU)-targeted custom layers."
                              "Absolute path to a shared library with the"
@@ -47,15 +47,20 @@ def build_argparser():
                         help="Specify how fast the mouse moves")
     parser.add_argument("--mouse_precision", "-mp", type=str, default="medium",
                         help="Specify how precise the mouse moves")
-    parser.add_argument("--video_out", "-vo", dest='video_out', default=False, action='store_true',
+    parser.add_argument("--log_level", "-l", type=str, default="INFO",
+                        help="Specify how precise the mouse moves")
+    parser.add_argument("--video_out", "-vo", default=False, action='store_true',
                         help="Show an image of every step with cv2.show()")
-    parser.add_argument("--show_image_steps", "-s", dest='show_image_steps', default=False, action='store_true',
+    parser.add_argument("--show_image_steps", "-s", default=False, action='store_true',
                         help="Show an image of every step with cv2.show()")
+    parser.add_argument("--moving_mouse", "-mm", default=False, action='store_true',
+                        help="Turn the mouse movement on")
     return parser
 
 
 def main():
     args = build_argparser().parse_args()
+    log.basicConfig(level=args.log_level)
     mouse = MouseController(args.mouse_precision, args.mouse_speed)
     face_det = ModelFaceDetection(model_name=args.model_face_detection, device=args.device, extensions=args.extensions)
     head_pose = ModelHeadPoseEstimation(args.model_head_pose, args.device, args.extensions)
@@ -72,6 +77,7 @@ def main():
         if args.video_out:
             cv2.imshow('video', frame)
         face_pred = face_det.predict(frame)
+        log.debug('Face Prediction at %s' % face_pred)
         if args.show_image_steps:
             out_frame = face_det.draw_prediction(frame, face_pred, width, height)
             cv2.imshow('Head Boundaries', out_frame)
@@ -81,6 +87,7 @@ def main():
             cv2.imshow('Head', img_head)
             _ = cv2.waitKey()
         landmark_pred = landmarks.predict(img_head)
+        log.debug('Landmark Prediction at %s' % landmark_pred)
         left_eye_image, right_eye_image = landmarks.preprocess_output(img_head, landmark_pred,
                                                                   img_head.shape[1], img_head.shape[0])
         if args.show_image_steps:
@@ -92,19 +99,22 @@ def main():
             cv2.imshow('right eye', right_eye_image)
             _ = cv2.waitKey()
         head_pose_angles = head_pose.predict(img_head)
+        log.debug('Head Pose Prediction at %s' % head_pose_angles)
         gaze = gaze_est.predict(left_eye_image, right_eye_image, head_pose_angles)
+        log.debug('Gaze Prediction at %s' % gaze)
         if args.show_image_steps:
             out_frame = gaze_est.draw_prediction(img_head, gaze, img_head.shape[1], img_head.shape[0])
             cv2.imshow('Gaze', out_frame)
             _ = cv2.waitKey()
+        mouse_movement = gaze_est.preprocess_output(gaze)
 
         key = cv2.waitKey(1)
 
         if key in {ord("q"), ord("Q"), 27}: # ESC key
+            log.info('%s pressed, stopping program' % key)
             break
-        gaze = gaze_est.preprocess_output(gaze)
-        print(gaze)
-        mouse.move(gaze[0], gaze[1])
+        if args.moving_mouse:
+            mouse.move(mouse_movement[0], mouse_movement[1])
 
 
 if __name__ == '__main__':
