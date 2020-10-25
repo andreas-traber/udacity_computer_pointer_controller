@@ -1,5 +1,4 @@
-from src.model import Model
-import copy
+from model import Model
 
 class ModelFacialLandmarksDetection(Model):
     """

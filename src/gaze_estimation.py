@@ -1,6 +1,6 @@
 import copy
 
-from src.model import Model
+from model import Model
 import cv2
 
 class ModelGazeEstimation(Model):

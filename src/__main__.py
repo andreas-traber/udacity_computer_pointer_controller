@@ -1,11 +1,14 @@
-from src.face_detection import ModelFaceDetection
-from src.head_pose_estimation import ModelHeadPoseEstimation
-from src.facial_landmarks_detection import ModelFacialLandmarksDetection
-from src.gaze_estimation import ModelGazeEstimation
-from src.mouse_controller import MouseController
+import sys
+
+from face_detection import ModelFaceDetection
+from head_pose_estimation import ModelHeadPoseEstimation
+from facial_landmarks_detection import ModelFacialLandmarksDetection
+from gaze_estimation import ModelGazeEstimation
+from mouse_controller import MouseController
 
 import logging as log
 import cv2
+import time
 
 from argparse import ArgumentParser
 
@@ -49,6 +52,8 @@ def build_argparser():
                         help="Specify how precise the mouse moves")
     parser.add_argument("--log_level", "-l", type=str, default="INFO",
                         help="Specify how precise the mouse moves")
+    parser.add_argument("--save_error_frame", "-sef", default=False, action='store_true',
+                        help="Save a frame, that can not be processed")
     parser.add_argument("--video_out", "-vo", default=False, action='store_true',
                         help="Show an image of every step with cv2.show()")
     parser.add_argument("--show_image_steps", "-s", default=False, action='store_true',
@@ -60,7 +65,9 @@ def build_argparser():
 
 def main():
     args = build_argparser().parse_args()
-    log.basicConfig(level=args.log_level)
+    if args.input == 'CAM':
+        args.input=0
+    log.basicConfig(format='%(levelname)s: %(message)s', level=args.log_level)
     mouse = MouseController(args.mouse_precision, args.mouse_speed)
     face_det = ModelFaceDetection(model_name=args.model_face_detection, device=args.device, extensions=args.extensions)
     head_pose = ModelHeadPoseEstimation(args.model_head_pose, args.device, args.extensions)
@@ -71,51 +78,66 @@ def main():
     width = int(cap.get(3))
     height = int(cap.get(4))
     while cap.isOpened():
-        flag, frame = cap.read()
-        if not flag:
-            break
-        if args.video_out:
-            cv2.imshow('video', frame)
-        face_pred = face_det.predict(frame)
-        log.debug('Face Prediction at %s' % face_pred)
-        if args.show_image_steps:
-            out_frame = face_det.draw_prediction(frame, face_pred, width, height)
-            cv2.imshow('Head Boundaries', out_frame)
-            _ = cv2.waitKey()
-        img_head = face_det.preprocess_output(frame, face_pred, width, height)
-        if args.show_image_steps:
-            cv2.imshow('Head', img_head)
-            _ = cv2.waitKey()
-        landmark_pred = landmarks.predict(img_head)
-        log.debug('Landmark Prediction at %s' % landmark_pred)
-        left_eye_image, right_eye_image = landmarks.preprocess_output(img_head, landmark_pred,
-                                                                  img_head.shape[1], img_head.shape[0])
-        if args.show_image_steps:
-            out_frame = landmarks.draw_prediction(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
-            cv2.imshow('Landmarks Boundaries', out_frame)
-            _ = cv2.waitKey()
-            cv2.imshow('left eye', left_eye_image)
-            _ = cv2.waitKey()
-            cv2.imshow('right eye', right_eye_image)
-            _ = cv2.waitKey()
-        head_pose_angles = head_pose.predict(img_head)
-        log.debug('Head Pose Prediction at %s' % head_pose_angles)
-        gaze = gaze_est.predict(left_eye_image, right_eye_image, head_pose_angles)
-        log.debug('Gaze Prediction at %s' % gaze)
-        if args.show_image_steps:
-            out_frame = gaze_est.draw_prediction(img_head, gaze, img_head.shape[1], img_head.shape[0])
-            cv2.imshow('Gaze', out_frame)
-            _ = cv2.waitKey()
-        mouse_movement = gaze_est.preprocess_output(gaze)
+        try:
+            flag, frame = cap.read()
+            if not flag:
+                break
+            if args.video_out:
+                cv2.imshow('video', frame)
+            face_pred = face_det.predict(frame)
+            if not face_pred:
+                log.warning('Face not Found')
+                continue
+            log.debug('Face Prediction at %s' % face_pred)
+            if args.show_image_steps:
+                out_frame = face_det.draw_prediction(frame, face_pred, width, height)
+                cv2.imshow('Head Boundaries', out_frame)
+                _ = cv2.waitKey()
+            img_head = face_det.preprocess_output(frame, face_pred, width, height)
+            if args.show_image_steps:
+                cv2.imshow('Head', img_head)
+                _ = cv2.waitKey()
+            landmark_pred = landmarks.predict(img_head)
+            log.debug('Landmark Prediction at %s' % landmark_pred)
+            left_eye_image, right_eye_image = landmarks.preprocess_output(img_head, landmark_pred,
+                                                                          img_head.shape[1], img_head.shape[0])
+            if not left_eye_image.any():
+                log.warning('Eye not Found')
+                continue
 
-        key = cv2.waitKey(1)
+            if args.show_image_steps:
+                out_frame = landmarks.draw_prediction(img_head, landmark_pred, img_head.shape[1], img_head.shape[0])
+                cv2.imshow('Landmarks Boundaries', out_frame)
+                _ = cv2.waitKey()
+                cv2.imshow('left eye', left_eye_image)
+                _ = cv2.waitKey()
+                cv2.imshow('right eye', right_eye_image)
+                _ = cv2.waitKey()
+            head_pose_angles = head_pose.predict(img_head)
+            log.debug('Head Pose Prediction at %s' % head_pose_angles)
+            gaze = gaze_est.predict(left_eye_image, right_eye_image, head_pose_angles)
+            log.debug('Gaze Prediction at %s' % gaze)
+            if args.show_image_steps:
+                out_frame = gaze_est.draw_prediction(img_head, gaze, img_head.shape[1], img_head.shape[0])
+                cv2.imshow('Gaze', out_frame)
+                _ = cv2.waitKey()
+            mouse_movement = gaze_est.preprocess_output(gaze)
 
-        if key in {ord("q"), ord("Q"), 27}: # ESC key
-            log.info('%s pressed, stopping program' % key)
-            break
-        if args.moving_mouse:
-            mouse.move(mouse_movement[0], mouse_movement[1])
+            key = cv2.waitKey(1)
 
+            if key in {ord("q"), ord("Q"), 27}:  # ESC key
+                log.info('%s pressed, stopping program' % key)
+                break
+            if args.moving_mouse:
+                mouse.move(mouse_movement[0], mouse_movement[1])
+        except:
+            e = sys.exc_info()
+            log.error(e)
+            if args.save_error_frame:
+                out_frame = 'q%s.png' % time.strftime("%Y%m%d%H%M%S")
+                log.info('write file: %s' % out_frame)
+                cv2.imwrite(out_frame, frame)
+            raise
 
 if __name__ == '__main__':
     main()
