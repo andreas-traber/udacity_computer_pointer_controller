@@ -17,25 +17,21 @@ def build_argparser():
     parser = ArgumentParser()
     parser.add_argument("--model_face_detection", "-m", required=False, type=str,
                         help="Path to an xml file with a trained face detection model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller'
-                                '/models/intel/face-detection-adas-0001/FP32/face-detection-adas-0001'
+                        default='models/intel/face-detection-adas-0001/FP32/face-detection-adas-0001'
                                 '.xml')
     parser.add_argument("--model_head_pose", "-mhp", required=False, type=str,
                         help="Path to an xml file with a trained model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/models/intel'
-                                '/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001.xml')
+                        default='models/intel/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001.xml')
     parser.add_argument("--model_gaze_estimation", "-mge", required=False, type=str,
                         help="Path to an xml file with a trained Gaze Estimation model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/models/intel'
-                                '/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002.xml')
+                        default='models/intel/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002.xml')
     parser.add_argument("--model_landmarks", "-ml", required=False, type=str,
                         help="Path to an xml file with a trained Landmark model.",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/models/intel'
-                                '/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009.xml')
+                        default='models/intel/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009'
+                                '.xml')
     parser.add_argument("--input", "-i", required=False, type=str,
-                        help="Path to image or video file",
-                        default='/home/andi/python_projects/udacity/udacity_computer_pointer_controller/bin/vlcsnap'
-                                '-2020-10-20-12h42m10s763.png')
+                        help="Path to image or video file, 'CAM' for webcam-input",
+                        default='bin/single_frame.png')
     parser.add_argument("--extensions", "-e", required=False, type=str,
                         default=None,
                         help="MKLDNN (CPU)-targeted custom layers."
@@ -51,11 +47,11 @@ def build_argparser():
     parser.add_argument("--mouse_precision", "-mp", type=str, default="medium",
                         help="Specify how precise the mouse moves")
     parser.add_argument("--log_level", "-l", type=str, default="INFO",
-                        help="Specify how precise the mouse moves")
+                        help="Set the log Level")
     parser.add_argument("--save_error_frame", "-sef", default=False, action='store_true',
                         help="Save a frame, that can not be processed")
     parser.add_argument("--video_out", "-vo", default=False, action='store_true',
-                        help="Show an image of every step with cv2.show()")
+                        help="show the video(-stream) with cv2.show()")
     parser.add_argument("--show_image_steps", "-s", default=False, action='store_true',
                         help="Show an image of every step with cv2.show()")
     parser.add_argument("--moving_mouse", "-mm", default=False, action='store_true',
