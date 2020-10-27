@@ -1,4 +1,5 @@
 import copy
+import time
 
 from model import Model
 import cv2
@@ -17,9 +18,11 @@ class ModelGazeEstimation(Model):
         """
         preprocessed_left_eye = self.preprocess_input(left_eye_image)
         preprocessed_right_eye = self.preprocess_input(right_eye_image)
+        start = time.time()
         result = self.exec_network.infer(inputs={'left_eye_image': preprocessed_left_eye,
                                                  'right_eye_image': preprocessed_right_eye,
                                                  'head_pose_angles': head_pose_angles})
+        self.infer_times.append(time.time() - start)
         return result
 
     def get_coordinates(self, outputs, width, height):

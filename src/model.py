@@ -3,11 +3,13 @@ This is a sample class for a model. You may choose to use it as-is or make any c
 This has been provided just to give you an idea of how to structure your model class.
 """
 import os
+import time
 from abc import abstractmethod
 
 from openvino.inference_engine import IECore
 import cv2
 import copy
+import logging as log
 
 
 class Model:
@@ -16,15 +18,14 @@ class Model:
     """
 
     def __init__(self, model_name, device='CPU', extensions=None, threshold=0.5):
-        """
-        TODO: Use this to set your instance variables.
-        """
         self.model_name = model_name
         self.device = device
         self.extensions = extensions
         self.threshold = threshold
+        self.infer_times = []
 
         # Load the model
+        start = time.time()
         model_bin = os.path.splitext(self.model_name)[0] + ".bin"
 
         self.ie = IECore()
@@ -45,6 +46,7 @@ class Model:
             self.ie.add_extension(self.extensions, "CPU")
 
         self.net_input_shape = self.net.input_info[self.input_name].input_data.shape
+        self.load_time = time.time() - start
 
     def preprocess_input(self, image):
         """
@@ -61,7 +63,10 @@ class Model:
         This method is meant for running predictions on the input image.
         """
         preprocessed_image = self.preprocess_input(image)
-        return self.exec_network.infer(inputs={self.input_name: preprocessed_image})[self.output_blobs]
+        start = time.time()
+        result = self.exec_network.infer(inputs={self.input_name: preprocessed_image})[self.output_blobs]
+        self.infer_times.append(time.time() - start)
+        return result
 
     def preprocess_output(self, image, outputs, width, height):
         """
@@ -87,3 +92,15 @@ class Model:
         for rect in bbox:
             cv2.rectangle(ret_image, (rect[0], rect[1]), (rect[2], rect[3]), [0, 0, 255], 6)
         return ret_image
+
+    @staticmethod
+    def show_statistics_header():
+        print('|'.join(['Model Name', 'Load Time in ms', 'Avg. Inference Time in ms', 'Min. Inference Time in ms',
+                        'Max. Inference Time in ms']))
+        print('---|---|---|---|---')
+
+    def show_statistics(self, model_name):
+        print('|'.join([model_name, str(round(self.load_time * 1000, 1)),
+                        str(round(sum(self.infer_times) / len(self.infer_times) * 1000, 1)),
+                        str(round(min(self.infer_times) * 1000, 1)),
+                        str(round(max(self.infer_times) * 1000, 1))]))

@@ -56,6 +56,8 @@ def build_argparser():
                         help="Show an image of every step with cv2.show()")
     parser.add_argument("--moving_mouse", "-mm", default=False, action='store_true',
                         help="Turn the mouse movement on")
+    parser.add_argument("--stats", default=False, action='store_true',
+                        help="Show Statistics")
     return parser
 
 
@@ -134,6 +136,12 @@ def main():
                 log.info('write file: %s' % out_frame)
                 cv2.imwrite(out_frame, frame)
             raise
+    if args.stats:
+        face_det.show_statistics_header()
+        face_det.show_statistics('Face Detection')
+        head_pose.show_statistics('Head Pose')
+        landmarks.show_statistics('Landmarks')
+        gaze_est.show_statistics('Gaze Estimation')
 
 if __name__ == '__main__':
     main()

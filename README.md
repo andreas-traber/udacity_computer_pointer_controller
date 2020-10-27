@@ -80,16 +80,46 @@ optional arguments:
 ```
 
 ## Benchmarks
-*TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
+Running this on an AMD FX(tm)-8350 Eight-Core Processor
+```
+python3 src/__main__.py --stats -i bin/demo.mp4
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|420.8|83.6|79.3|90.8
+Head Pose|132.7|3.8|3.2|7.7
+Landmarks|129.3|1.2|0.9|5.9
+Gaze Estimation|160.6|5.4|4.0|14.1
+
+```
+python3 src/__main__.py --stats -i bin/demo.mp4 --model_landmarks models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001.xml
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|681.1|83.2|79.1|97.5
+Head Pose|263.6|3.8|3.2|6.2
+Landmarks|197.1|1.2|0.9|1.6
+Gaze Estimation|269.0|5.3|4.0|10.3
+
+```
+python3 src/__main__.py --stats -i bin/demo.mp4  --model_landmarks models/intel/landmarks-regression-retail-0009/FP16-INT8/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16-INT8/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16-INT8/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16-INT8/face-detection-adas-0001.xml
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|1552.2|39.2|35.7|53.2
+Head Pose|354.6|2.7|2.3|8.6
+Landmarks|181.1|0.9|0.7|1.6
+Gaze Estimation|419.8|2.6|2.1|4.3
+
+
+
+
 
 ## Results
-*TODO:* Discuss the benchmark results and explain why you are getting the results you are getting. For instance, explain why there is difference in inference time for FP32, FP16 and INT8 models.
+As can be seen from the results, there is a slight difference between the FP32 and FP16 on CPU. The major differences are seen when using the FP16-INT8. The models Head pose estimation and Gaze estimation have the greater increase in performance when using the FP16-INT8.
 
-## Stand Out Suggestions
-This is where you can provide information about the stand out suggestions that you have attempted.
+All the models with FP16 and FP16-INT8 may see a reduction on loading times because they are quantized versions with weights occupying half or a quarter of memory space than the FP32 weights.
 
-### Async Inference
-If you have used Async Inference in your code, benchmark the results and explain its effects on power and performance of your project.
+The FP16 and FP16-INT8 may have smaller inference times because they use smaller data types that takes less space and in some cases can runs more than one calculation on onees instruction.
 
-### Edge Cases
-There will be certain situations that will break your inference flow. For instance, lighting changes or multiple people in the frame. Explain some of the edge cases you encountered in your project and how you solved them to make your project more robust.
+The total inference time for the FP32 is 11.44 ms with 87.41 fps. This is a very interesting performance with a near real time feeling.
