@@ -80,7 +80,7 @@ optional arguments:
 ```
 
 ## Benchmarks
-Running this on an AMD FX(tm)-8350 Eight-Core Processor
+### AMD FX(tm)-8350 Eight-Core Processor
 ```
 python3 src/__main__.py --stats -i bin/demo.mp4
 ```
@@ -111,7 +111,36 @@ Head Pose|354.6|2.7|2.3|8.6
 Landmarks|181.1|0.9|0.7|1.6
 Gaze Estimation|419.8|2.6|2.1|4.3
 
+### Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz
+```
+python3 src/__main__.py --stats -i bin/demo.mp4
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|290.4|18.1|14.4|64.8
+Head Pose|129.1|1.3|1.1|8.2
+Landmarks|69.1|0.5|0.3|3.7
+Gaze Estimation|93.2|1.4|1.2|6.1
+```
+python3 src/__main__.py --stats -i bin/demo.mp4 --model_landmarks models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001.xml
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|260.4|16.0|13.8|44.0
+Head Pose|112.5|1.2|1.1|6.9
+Landmarks|72.8|0.4|0.3|1.3
+Gaze Estimation|119.0|1.3|1.2|4.9
 
+
+```
+python3 src/__main__.py --stats -i bin/demo.mp4  --model_landmarks models/intel/landmarks-regression-retail-0009/FP16-INT8/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16-INT8/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16-INT8/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16-INT8/face-detection-adas-0001.xml
+```
+Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
+---|---|---|---|---
+Face Detection|531.1|15.2|10.7|53.1
+Head Pose|211.1|1.1|0.7|11.9
+Landmarks|100.6|0.5|0.3|6.6
+Gaze Estimation|238.7|1.0|0.7|5.3
 
 
 
