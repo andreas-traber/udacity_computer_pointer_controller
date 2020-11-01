@@ -116,10 +116,3 @@ Gaze Estimation|419.8|2.6|2.1|4.3
 
 
 ## Results
-As can be seen from the results, there is a slight difference between the FP32 and FP16 on CPU. The major differences are seen when using the FP16-INT8. The models Head pose estimation and Gaze estimation have the greater increase in performance when using the FP16-INT8.
-
-All the models with FP16 and FP16-INT8 may see a reduction on loading times because they are quantized versions with weights occupying half or a quarter of memory space than the FP32 weights.
-
-The FP16 and FP16-INT8 may have smaller inference times because they use smaller data types that takes less space and in some cases can runs more than one calculation on onees instruction.
-
-The total inference time for the FP32 is 11.44 ms with 87.41 fps. This is a very interesting performance with a near real time feeling.
