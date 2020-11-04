@@ -81,6 +81,7 @@ optional arguments:
 
 ## Benchmarks
 ### AMD FX(tm)-8350 Eight-Core Processor
+This benchmark was made on a Desktop PC with an AMD FX(tm)-8350 Eight-Core Processor.
 ```
 python3 src/__main__.py --stats -i bin/demo.mp4
 ```
@@ -112,36 +113,42 @@ Landmarks|181.1|0.9|0.7|1.6
 Gaze Estimation|419.8|2.6|2.1|4.3
 
 ### Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz
+This benchmark was made on a Desktop PC with  Intel(R) Core(TM) i5-7500 CPU processor.
 ```
 python3 src/__main__.py --stats -i bin/demo.mp4
 ```
 Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
 ---|---|---|---|---
-Face Detection|290.4|18.1|14.4|64.8
-Head Pose|129.1|1.3|1.1|8.2
-Landmarks|69.1|0.5|0.3|3.7
-Gaze Estimation|93.2|1.4|1.2|6.1
+Face Detection|260.6|18.7|14.6|69.0
+Head Pose|85.2|1.4|1.1|6.3
+Landmarks|74.1|0.5|0.3|2.1
+Gaze Estimation|91.1|1.6|1.2|6.4
+
 ```
 python3 src/__main__.py --stats -i bin/demo.mp4 --model_landmarks models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001.xml
 ```
 Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
 ---|---|---|---|---
-Face Detection|260.4|16.0|13.8|44.0
-Head Pose|112.5|1.2|1.1|6.9
-Landmarks|72.8|0.4|0.3|1.3
-Gaze Estimation|119.0|1.3|1.2|4.9
-
+Face Detection|277.5|18.9|14.6|59.3
+Head Pose|131.7|1.4|1.1|5.7
+Landmarks|78.5|0.5|0.3|3.9
+Gaze Estimation|135.5|1.6|1.2|5.7
 
 ```
 python3 src/__main__.py --stats -i bin/demo.mp4  --model_landmarks models/intel/landmarks-regression-retail-0009/FP16-INT8/landmarks-regression-retail-0009.xml --model_gaze_estimation models/intel/gaze-estimation-adas-0002/FP16-INT8/gaze-estimation-adas-0002.xml --model_head_pose models/intel/head-pose-estimation-adas-0001/FP16-INT8/head-pose-estimation-adas-0001.xml --model_face_detection models/intel/face-detection-adas-0001/FP16-INT8/face-detection-adas-0001.xml
 ```
 Model Name|Load Time in ms|Avg. Inference Time in ms|Min. Inference Time in ms|Max. Inference Time in ms
 ---|---|---|---|---
-Face Detection|531.1|15.2|10.7|53.1
-Head Pose|211.1|1.1|0.7|11.9
-Landmarks|100.6|0.5|0.3|6.6
-Gaze Estimation|238.7|1.0|0.7|5.3
+Face Detection|585.4|13.6|10.7|38.4
+Head Pose|237.3|1.0|0.8|7.2
+Landmarks|122.2|0.5|0.3|1.6
+Gaze Estimation|257.3|1.0|0.7|6.6
+
 
 
 
 ## Results
+The benchmark clearly shows, that the Intel-Processor is much better suited for this application.
+Face Detection is the slowest of the models, so if we wanted to optimize a model, this would be our choice.
+Using different precisions doesn't make much difference between FP32 and FP16. FP16 even seems worse, since the load time is higher.
+There is a performance boost, when using FP16-INT8 on the interference time, but worse performance for the load time. For this application load time doesn't matter that much, since it should be loaded once and the inference running on a lot of frames.
