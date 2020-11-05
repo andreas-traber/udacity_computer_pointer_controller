@@ -79,6 +79,28 @@ optional arguments:
   --moving_mouse, -mm   Turn the mouse movement on
 ```
 
+The directory structure is as following
+
+``` 
+.
+├── bin                                            - contains video or picture files
+├── LICENSE                                        - LICENSE file
+├── models                                         - contains OpenVino Models
+├── README.md                                      - README file
+├── requirements.txt                               - required python libarys 
+├── src                                            - contains source code
+│   ├── face_detection.py                          - implementation of face detection
+│   ├── facial_landmarks_detection.py              - implementation of facial landmark detection
+│   ├── gaze_estimation.py                         - implementation of gaze estimation
+│   ├── head_pose_estimation.py                    - implementation of head pose estimation
+│   ├── __init__.py                                - INIT file
+│   ├── __main__.py                                - main application
+│   ├── model.py                                   - base clase for models
+│   └── mouse_controller.py                        - implementation of mouse control
+└── venv                                           - contains the virtual environment
+
+```
+
 ## Benchmarks
 ### AMD FX(tm)-8350 Eight-Core Processor
 This benchmark was made on a Desktop PC with an AMD FX(tm)-8350 Eight-Core Processor.
